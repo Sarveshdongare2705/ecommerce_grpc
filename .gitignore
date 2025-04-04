@@ -1,0 +1,13 @@
+# Ignore environment files
+.env  
+
+# Ignore Node.js dependencies
+node_modules/
+
+# Ignore Python cache files
+__pycache__/
+
+# Ignore gRPC-generated Python files (optional, if using gRPC with Python)
+*.pyc
+*_pb2.py
+*_pb2_grpc.py

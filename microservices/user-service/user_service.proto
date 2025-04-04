@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package user_service;
+
+service UserService {
+    rpc RegisterUser (RegisterRequest) returns (UserResponse);
+    rpc LoginUser (LoginRequest) returns (UserResponse);
+    rpc GetUserProfile (UserProfileRequest) returns (UserProfileResponse);
+    rpc UpdateUserProfile (UpdateUserRequest) returns (UserResponse);
+}
+
+message RegisterRequest {
+    string full_name = 1;
+    string email = 2;
+    string password = 3;
+    string address = 4;
+    string phone_number = 5;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message UserProfileRequest {
+    string user_id = 1;
+}
+
+message UpdateUserRequest {
+    string email = 1;
+    string full_name = 2;
+    string address = 3;
+    string phone_number = 4;
+}
+
+message UserResponse {
+    string message = 1;
+    string user_id = 2;
+}
+
+message UserProfileResponse {
+    string full_name = 1;
+    string email = 2;
+    string address = 3;
+    string phone_number = 4;
+}
