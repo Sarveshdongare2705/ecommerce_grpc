@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package product;
+
+service ProductService {
+  // Create a new product
+  rpc CreateProduct (CreateProductRequest) returns (ProductResponse) {}
+  
+  // Get a specific product by ID
+  rpc GetProduct (GetProductRequest) returns (ProductResponse) {}
+  
+  // List all products with optional filters
+  rpc ListProducts (ListProductsRequest) returns (stream ProductResponse) {}
+  
+  // Update a product
+  rpc UpdateProduct (UpdateProductRequest) returns (ProductResponse) {}
+  
+  // Delete a product
+  rpc DeleteProduct (DeleteProductRequest) returns (DeleteProductResponse) {}
+}
+
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  string category = 5;
+  string brand = 6;
+  int32 stock = 7;
+  map<string, string> attributes = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  string category = 4;
+  string brand = 5;
+  int32 stock = 6;
+  map<string, string> attributes = 7;
+}
+
+message GetProductRequest {
+  string product_id = 1;
+}
+
+message ListProductsRequest {
+  string category = 1;
+  string brand = 2;
+  double min_price = 3;
+  double max_price = 4;
+  int32 page = 5;
+  int32 limit = 6;
+}
+
+message UpdateProductRequest {
+  string product_id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  string category = 5;
+  string brand = 6;
+  int32 stock = 7;
+  map<string, string> attributes = 9;
+}
+
+message DeleteProductRequest {
+  string product_id = 1;
+}
+
+message ProductResponse {
+  bool success = 1;
+  string message = 2;
+  Product product = 3;
+}
+
+message DeleteProductResponse {
+  bool success = 1;
+  string message = 2;
+} 

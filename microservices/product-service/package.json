@@ -1,0 +1,13 @@
+{
+  "name": "product-service-client",
+  "version": "1.0.0",
+  "description": "gRPC client for Product Service",
+  "main": "product_service_client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.8.0",
+    "@grpc/proto-loader": "^0.7.0"
+  }
+} 
