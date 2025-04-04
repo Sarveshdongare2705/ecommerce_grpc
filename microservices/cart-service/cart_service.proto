@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package cart;
+
+service CartService {
+  rpc AddToCart(AddToCartRequest) returns (CartResponse);
+  rpc RemoveFromCart(RemoveFromCartRequest) returns (CartResponse);
+  rpc UpdateCartItem(UpdateCartItemRequest) returns (CartResponse);
+  rpc GetCartItems(GetCartItemsRequest) returns (GetCartItemsResponse);
+  rpc ClearCart(ClearCartRequest) returns (CartResponse);
+  rpc CalculateTotalPrice(CalculateTotalPriceRequest) returns (TotalPriceResponse);
+}
+
+message CartItem {
+  string product_id = 1;
+  int32 quantity = 2;
+}
+
+message AddToCartRequest {
+  string user_id = 1;
+  string product_id = 2;
+  int32 quantity = 3;
+}
+
+message RemoveFromCartRequest {
+  string user_id = 1;
+  string product_id = 2;
+}
+
+message UpdateCartItemRequest {
+  string user_id = 1;
+  string product_id = 2;
+  int32 quantity = 3;
+}
+
+message GetCartItemsRequest {
+  string user_id = 1;
+}
+
+message GetCartItemsResponse {
+  repeated CartItem items = 1;
+}
+
+message ClearCartRequest {
+  string user_id = 1;
+}
+
+message CalculateTotalPriceRequest {
+  string user_id = 1;
+}
+
+message TotalPriceResponse {
+  double total_price = 1;
+}
+
+message CartResponse {
+  bool success = 1;
+  string message = 2;
+}

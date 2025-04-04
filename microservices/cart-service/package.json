@@ -1,0 +1,16 @@
+{
+  "name": "cart-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cart_service_client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.13.2",
+    "@grpc/proto-loader": "^0.7.13"
+  }
+}

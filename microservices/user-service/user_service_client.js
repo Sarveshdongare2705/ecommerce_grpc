@@ -2,7 +2,7 @@ const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const readline = require("readline");
 
-// Load the proto file
+
 const packageDefinition = protoLoader.loadSync("user_service.proto", {
   keepCase: true,
   longs: String,
@@ -22,14 +22,12 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-// Function to interactively get user input
 function askQuestion(question) {
   return new Promise((resolve) => {
     rl.question(question, (answer) => resolve(answer));
   });
 }
 
-// Function to handle user choice
 async function main() {
   console.log("\n1. Register User\n2. Login User\n3. Get User Profile\n4. Update User Profile\n5. Exit");
   
