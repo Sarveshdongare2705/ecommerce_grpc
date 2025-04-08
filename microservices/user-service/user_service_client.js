@@ -1,7 +1,12 @@
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const readline = require("readline");
+const redis = require("redis");
 
+const clientRedis = redis.createClient();
+clientRedis.connect();
+
+let sessionToken = "";
 
 const packageDefinition = protoLoader.loadSync("user_service.proto", {
   keepCase: true,
@@ -12,89 +17,82 @@ const packageDefinition = protoLoader.loadSync("user_service.proto", {
 });
 
 const userProto = grpc.loadPackageDefinition(packageDefinition).user_service;
-
-// Create gRPC client
 const client = new userProto.UserService("localhost:50051", grpc.credentials.createInsecure());
 
-// CLI Interface for user input
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-function askQuestion(question) {
-  return new Promise((resolve) => {
-    rl.question(question, (answer) => resolve(answer));
-  });
+function ask(question) {
+  return new Promise(resolve => rl.question(question, resolve));
 }
 
 async function main() {
-  console.log("\n1. Register User\n2. Login User\n3. Get User Profile\n4. Update User Profile\n5. Exit");
-  
-  const choice = await askQuestion("Enter your choice: ");
+  console.log("\n1. Register\n2. Login\n3. Get Profile\n4. Update Profile\n5. Logout\n6. Exit");
+  const choice = await ask("Enter choice: ");
 
   switch (choice) {
     case "1":
-      const fullName = await askQuestion("Enter full name: ");
-      const email = await askQuestion("Enter email: ");
-      const password = await askQuestion("Enter password: ");
-      const address = await askQuestion("Enter address: ");
-      const phoneNumber = await askQuestion("Enter phone number: ");
-
-      client.RegisterUser({ full_name: fullName, email, password, address, phone_number: phoneNumber }, (error, response) => {
-        if (error) console.error("Error:", error.message);
-        else console.log(`${response.message}, User ID: ${response.user_id}`);
+      const fullName = await ask("Full name: ");
+      const email = await ask("Email: ");
+      const password = await ask("Password: ");
+      const address = await ask("Address: ");
+      const phone = await ask("Phone: ");
+      client.RegisterUser({ full_name: fullName, email, password, address, phone_number: phone }, (err, res) => {
+        if (err) console.log("Error:", err.message);
+        else console.log(res.message, res.user_id);
         main();
       });
       break;
 
     case "2":
-      const loginEmail = await askQuestion("Enter email: ");
-      const loginPassword = await askQuestion("Enter password: ");
-
-      client.LoginUser({ email: loginEmail, password: loginPassword }, (error, response) => {
-        if (error) console.error("Error:", error.message);
-        else console.log(`${response.message}, User ID: ${response.user_id}`);
-        main();
-      });
-      break;
-
-    case "3":
-      const userId = await askQuestion("Enter User ID: ");
-
-      client.GetUserProfile({ user_id: userId }, (error, response) => {
-        if (error) console.error("Error:", error.message);
+      const loginEmail = await ask("Email: ");
+      const loginPassword = await ask("Password: ");
+      client.LoginUser({ email: loginEmail, password: loginPassword }, (err, res) => {
+        if (err) console.log("Error:", err.message);
         else {
-          console.log("\nUser Profile:");
-          console.log(`  Name: ${response.full_name}`);
-          console.log(`  Email: ${response.email}`);
-          console.log(`  Address: ${response.address}`);
-          console.log(`  Phone: ${response.phone_number}`);
+          sessionToken = res.session_token;
+          console.log(res.message, "\nSession Token:", sessionToken);
         }
         main();
       });
       break;
 
-    case "4":
-      const updateEmail = await askQuestion("Enter your registered email: ");
-      const newFullName = await askQuestion("Enter new full name: ");
-      const newAddress = await askQuestion("Enter new address: ");
-      const newPhoneNumber = await askQuestion("Enter new phone number: ");
+    case "3":
+      if (!sessionToken) return console.log("Please login first"), main();
+      client.GetUserProfile({ session_token: sessionToken }, (err, res) => {
+        if (err || !res.email) console.log("Session expired or invalid.");
+        else console.log(`\nName: ${res.full_name}\nEmail: ${res.email}\nAddress: ${res.address}\nPhone: ${res.phone_number}`);
+        main();
+      });
+      break;
 
-      client.UpdateUserProfile({ email: updateEmail, full_name: newFullName, address: newAddress, phone_number: newPhoneNumber }, (error, response) => {
-        if (error) console.error("Error:", error.message);
-        else console.log(`${response.message}`);
+    case "4":
+      if (!sessionToken) return console.log("Please login first"), main();
+      const newName = await ask("New name: ");
+      const newAddress = await ask("New address: ");
+      const newPhone = await ask("New phone: ");
+      client.UpdateUserProfile({ session_token: sessionToken, full_name: newName, address: newAddress, phone_number: newPhone }, (err, res) => {
+        console.log(res.message);
         main();
       });
       break;
 
     case "5":
-      console.log("Exiting...");
+      if (!sessionToken) return console.log("Not logged in."), main();
+      client.LogoutUser({ session_token: sessionToken }, (err, res) => {
+        console.log(res.message);
+        sessionToken = "";
+        main();
+      });
+      break;
+
+    case "6":
+      console.log("Goodbye!");
       rl.close();
+      process.exit();
       break;
 
     default:
-      console.log("Invalid choice, try again.");
+      console.log("Invalid choice.");
       main();
   }
 }

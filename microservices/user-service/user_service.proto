@@ -4,9 +4,10 @@ package user_service;
 
 service UserService {
     rpc RegisterUser (RegisterRequest) returns (UserResponse);
-    rpc LoginUser (LoginRequest) returns (UserResponse);
-    rpc GetUserProfile (UserProfileRequest) returns (UserProfileResponse);
+    rpc LoginUser (LoginRequest) returns (LoginResponse);
+    rpc GetUserProfile (SessionRequest) returns (UserProfileResponse);
     rpc UpdateUserProfile (UpdateUserRequest) returns (UserResponse);
+    rpc LogoutUser (SessionRequest) returns (UserResponse);
 }
 
 message RegisterRequest {
@@ -22,12 +23,17 @@ message LoginRequest {
     string password = 2;
 }
 
-message UserProfileRequest {
-    string user_id = 1;
+message LoginResponse {
+    string message = 1;
+    string session_token = 2;
+}
+
+message SessionRequest {
+    string session_token = 1;
 }
 
 message UpdateUserRequest {
-    string email = 1;
+    string session_token = 1;
     string full_name = 2;
     string address = 3;
     string phone_number = 4;
